@@ -1,4 +1,4 @@
-package com.cpd.cpd2.interfaceadapter;
+package com.cpd.cpd2.interfaceadapter.repository;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +16,9 @@ public class MinioConfig {
     @Value("${minio.secretKey}")
     private String secretKey;
 
+    @Value("${minio.port}")
+    private int port;
+
     @Value("${minio.bucket-name}")
     private String bucketName;
     @Value("${minio.secure}")
@@ -24,7 +27,7 @@ public class MinioConfig {
     @Bean
     public MinioClient minioClient() {
         MinioClient minioClient = MinioClient.builder().credentials(accessKey, secretKey)
-                .endpoint(minioUrl, 9000, minioSecure).build();
+                .endpoint(minioUrl, port, minioSecure).build();
         return minioClient;
     }
 }

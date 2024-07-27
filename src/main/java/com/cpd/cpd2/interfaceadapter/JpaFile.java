@@ -1,54 +1,41 @@
 package com.cpd.cpd2.interfaceadapter;
 
+import com.cpd.cpd2.interfaceadapter.repository.JpaFileRepository;
+import com.cpd.cpd2.interfaceadapter.repository.MinioComponent;
 import com.cpd.cpd2.usecase.FileDsRequestModel;
-import com.cpd.cpd2.usecase.FileUploadGateway;
+import com.cpd.cpd2.usecase.FileInfoEntity;
+import com.cpd.cpd2.usecase.FileUploadDownloadService;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 
 @Component
-public class JpaFile implements FileUploadGateway {
+@Getter
+@Setter
+public class JpaFile implements FileUploadDownloadService {
     @Autowired
     private MinioComponent minioComponent;
 
     @Autowired
     private JpaFileRepository repository;
 
-    public JpaFileRepository getRepository() {
-        return repository;
-    }
-
-    public MinioComponent getMinioComponent() {
-        return minioComponent;
-    }
-
-    public void setMinioComponent(MinioComponent minioComponent) {
-        this.minioComponent = minioComponent;
-    }
-
-    public void setRepository(JpaFileRepository repository) {
-        this.repository = repository;
-    }
-
-    public JpaFile(){};
-    public JpaFile(MinioComponent minioComponent,JpaFileRepository repository){
-        this.minioComponent = minioComponent;
-        this.repository = repository;
-    };
     @Override
-    public  boolean ExistById(String Key){
+    public  boolean existById(String Key){
         return repository.existsById(Key);
     }
 
     @Override
-    public void Upload(FileDsRequestModel fileDsRequestModel) {
-        FileInfoMapper fileInfo  = new FileInfoMapper(fileDsRequestModel.getKey(), fileDsRequestModel.getName(),
+    public void upload(@NotNull FileDsRequestModel fileDsRequestModel) {
+        FileInfoEntity fileInfo  = new FileInfoEntity(fileDsRequestModel.getKey(), fileDsRequestModel.getName(),
                 fileDsRequestModel.getSize(), fileDsRequestModel.getContentType(),fileDsRequestModel.getDateOfUpload());
-
         try {
             if(!(uploadFileToMinIO(fileDsRequestModel.getKey(), fileDsRequestModel.getFile()))){
                 return;
@@ -57,12 +44,21 @@ public class JpaFile implements FileUploadGateway {
             e.printStackTrace();
             return;
         }
-
-
         this.repository.save(fileInfo);
     }
+//    @Override
+//    public FileDownloadResponseModel download(String id){
+//        Optional<FileInfoEntity> optional = this.repository.findById(id);
+//        FileInfoEntity fileInfo=optional.get();
+//        byte[] file = minioComponent.getObject(id);
+//        return new FileDownloadResponseModel(fileInfo.getName(),file);
+//    }
+    @Override
+    public List<FileInfoEntity> getAllFiles(){
+        return repository.findAll();
+    }
 
-    public Boolean uploadFileToMinIO(String key, byte[] file) {
+    private Boolean uploadFileToMinIO(String key, byte[] file) {
         try {
             InputStream in = new ByteArrayInputStream(file);
             String fileName = key;
@@ -73,4 +69,7 @@ public class JpaFile implements FileUploadGateway {
         }
         return false;
     }
+
+
+
 }

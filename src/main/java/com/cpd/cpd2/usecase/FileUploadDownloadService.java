@@ -2,8 +2,12 @@ package com.cpd.cpd2.usecase;
 
 import java.util.List;
 
-public interface FileInputBoundary {
-    FileUploadResponseModel upload(FileUploadRequestModel request);
+public interface FileUploadDownloadService {
+
+    boolean existById(String Key);
+
+    void upload(FileDsRequestModel fileDsRequestModel);
+
 //    FileDownloadResponseModel download(String id);
 
     List<FileInfoEntity> getAllFiles();

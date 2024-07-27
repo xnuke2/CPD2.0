@@ -1,9 +1,10 @@
-package com.cpd.cpd2.interfaceadapter;
+package com.cpd.cpd2.interfaceadapter.repository;
 
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.errors.*;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,12 +15,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Component
+@NoArgsConstructor
 public class MinioComponent {
-
-    public MinioComponent() {
-
-    }
-
     @Autowired
     private MinioClient minioClient;
 
@@ -44,19 +41,19 @@ public class MinioComponent {
         }
     }
 
-    public String getObject(String objectName) {
+    public byte[] getObject(String objectName) {
         try (InputStream stream = minioClient
                 .getObject(GetObjectArgs.builder()
                         .bucket(bucketName)
                         .object(objectName)
                         .build());) {
-            return new String(stream.readAllBytes());
+            return stream.readAllBytes();
         } catch (ErrorResponseException | InsufficientDataException |
                  InternalException | InvalidKeyException | InvalidResponseException |
                  IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException | IllegalArgumentException e) {
             e.printStackTrace();
         }
-        return "You haven't uploaded anything yet.";
+        return null;
     }
 }
