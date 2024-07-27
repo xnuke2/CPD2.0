@@ -1,6 +1,7 @@
 package com.cpd.cpd2.interfaceadapter;
 
 
+import com.cpd.cpd2.usecase.FileDownloadResponseModel;
 import com.cpd.cpd2.usecase.FilePresenter;
 import com.cpd.cpd2.usecase.FileUploadResponseModel;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,13 @@ public class FileResponseFormatter implements FilePresenter {
         throw new ResponseStatusException(HttpStatus.CONFLICT, error);
     }
 
-//    @Override
-//    public FileDownloadResponseModel prepareSuccessView(FileDownloadResponseModel response){
-//        return response;
-//    }
-//
-//    @Override
-//    public FileDownloadResponseModel prepareDownloadFailView(String error) {
-//        throw new ResponseStatusException(HttpStatus.CONFLICT, error);
-//    }
+    @Override
+    public FileDownloadResponseModel prepareSuccessView(FileDownloadResponseModel response){
+        return response;
+    }
+
+    @Override
+    public FileDownloadResponseModel prepareDownloadFailView(String error) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, error);
+    }
 }

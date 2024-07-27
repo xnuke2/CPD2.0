@@ -47,13 +47,13 @@ public class UploadDownloadController {
         return ResponseEntity.status(HttpStatus.OK).body(files);
     }
 
-//    @GetMapping("/files/{id}")
-//    public ResponseEntity<byte[]> download(@PathVariable String id){
-//        FileDownloadResponseModel file =fileInputBoundary.download(id);
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-//                .body(file.getFile());
-//    }
+    @GetMapping("/files/{id}")
+    public ResponseEntity<byte[]> download(@PathVariable String id){
+        FileDownloadResponseModel file =fileInputBoundary.download(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(file.getFile());
+    }
 
 
 
