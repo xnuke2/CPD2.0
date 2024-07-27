@@ -35,6 +35,7 @@ public class JpaFile implements FileUploadDownloadService {
 
     @Override
     public void upload(@NotNull FileDsRequestModel fileDsRequestModel) {
+
         FileInfoEntity fileInfo  = new FileInfoEntity(fileDsRequestModel.getKey(), fileDsRequestModel.getName(),
                 fileDsRequestModel.getSize(), fileDsRequestModel.getContentType(),fileDsRequestModel.getDateOfUpload());
         try {
