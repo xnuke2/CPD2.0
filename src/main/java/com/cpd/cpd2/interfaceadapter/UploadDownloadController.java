@@ -21,10 +21,8 @@ public class UploadDownloadController {
     @Autowired
     public UploadDownloadController(JpaFile jpaFile){
         FilePresenter filePresenter = new FileResponseFormatter();
-
-        JpaFile fileUploadGateway= jpaFile;
         CommonHashingFile commonHashingFile = new CommonHashingFile();
-        this.fileInputBoundary =  new FileUploaderDownloader(filePresenter,fileUploadGateway, commonHashingFile);
+        this.fileInputBoundary =  new FileUploaderDownloader(filePresenter,jpaFile, commonHashingFile);
 
     }
     @PostMapping("/fileUploader")
@@ -51,7 +49,8 @@ public class UploadDownloadController {
     public ResponseEntity<byte[]> download(@PathVariable String id){
         FileDownloadResponseModel file =fileInputBoundary.download(id);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+                        + Transliter.transliterate(file.getName()) + "\"")
                 .body(file.getFile());
     }
 

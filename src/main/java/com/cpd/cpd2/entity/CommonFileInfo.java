@@ -8,13 +8,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CommonFileInfo implements FileInfo {
-
     private String name;
     private long size;
-
     private String type;
 
-    public Boolean CheckData(){
+    public Boolean checkData(){
         return !(name == null || size == 0 || type ==null);
     }
 }

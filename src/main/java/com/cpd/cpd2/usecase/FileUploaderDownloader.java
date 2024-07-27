@@ -4,28 +4,21 @@ package com.cpd.cpd2.usecase;
 import com.cpd.cpd2.entity.CommonFileInfoFactory;
 import com.cpd.cpd2.entity.FileInfo;
 import com.cpd.cpd2.entity.FileInfoFactory;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+@AllArgsConstructor
 public class FileUploaderDownloader implements FileInputBoundary{
-    final FileInfoFactory fileFactory;
+    final FileInfoFactory fileFactory= new CommonFileInfoFactory();
     final FilePresenter filePresenter;
     final FileUploadDownloadService fileUploadDownloadService;
     final FileHashing fileHashing;
 
-
-    public FileUploaderDownloader(FilePresenter filePresenter, FileUploadDownloadService fileUploadDownloadService, FileHashing fileHashing){
-         this.fileFactory = new CommonFileInfoFactory();
-         this.filePresenter = filePresenter;
-         this.fileUploadDownloadService = fileUploadDownloadService;
-         this.fileHashing = fileHashing;
-    }
-
     public FileUploadResponseModel upload(FileUploadRequestModel request){
-        FileInfo fileInfo = fileFactory.Create(request.getName(), request.getSize(), request.getContentType());
-        if(!fileInfo.CheckData()){
+        FileInfo fileInfo = fileFactory.create(request.getName(), request.getSize(), request.getContentType());
+        if(!fileInfo.checkData()){
             return filePresenter.prepareFailView("Incorrect name or size or type");
         }
         String key = fileHashing.generateKey(request.getName());
@@ -48,8 +41,7 @@ public class FileUploaderDownloader implements FileInputBoundary{
         return filePresenter.prepareSuccessView(tmpFile);
     }
     public List<FileInfoEntity> getAllFiles(){
-        List<FileInfoEntity> tmp = fileUploadDownloadService.getAllFiles();
-        return tmp;
+        return fileUploadDownloadService.getAllFiles();
     }
 
 }

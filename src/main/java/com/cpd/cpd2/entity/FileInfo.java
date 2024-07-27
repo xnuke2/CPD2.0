@@ -2,7 +2,7 @@ package com.cpd.cpd2.entity;
 
 public interface FileInfo {
 
-    Boolean CheckData();
+    Boolean checkData();
 
     long getSize();
 
