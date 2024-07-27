@@ -4,7 +4,8 @@ import java.util.List;
 
 public interface FileInputBoundary {
     FileUploadResponseModel upload(FileUploadRequestModel request);
-//    FileDownloadResponseModel download(String id);
+
+    FileDownloadResponseModel download(String id);
 
     List<FileInfoEntity> getAllFiles();
 

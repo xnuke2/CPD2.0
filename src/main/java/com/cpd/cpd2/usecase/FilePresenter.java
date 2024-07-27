@@ -5,7 +5,7 @@ public interface FilePresenter {
 
     FileUploadResponseModel prepareFailView(String error);
 
-//    FileDownloadResponseModel prepareSuccessView(FileDownloadResponseModel answer);
-//
-//    FileDownloadResponseModel prepareDownloadFailView(String error);
+    FileDownloadResponseModel prepareSuccessView(FileDownloadResponseModel answer);
+
+    FileDownloadResponseModel prepareDownloadFailView(String error);
 }

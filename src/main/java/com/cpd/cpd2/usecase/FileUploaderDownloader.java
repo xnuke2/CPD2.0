@@ -41,12 +41,12 @@ public class FileUploaderDownloader implements FileInputBoundary{
         FileUploadResponseModel tmp =  new FileUploadResponseModel(request.getName(),now);
         return filePresenter.prepareSuccessView(tmp);
     }
-//    public FileDownloadResponseModel download(String id){
-//        FileDownloadResponseModel tmpFile = fileUploadDownloadService.download(id);
-//        if(tmpFile==null||tmpFile.getFile()==null||tmpFile.getName()==null)
-//            return filePresenter.prepareDownloadFailView("No file with given id");
-//        return filePresenter.prepareSuccessView(tmpFile);
-//    }
+    public FileDownloadResponseModel download(String id){
+        FileDownloadResponseModel tmpFile = fileUploadDownloadService.download(id);
+        if(tmpFile==null||tmpFile.getFile()==null||tmpFile.getName()==null)
+            return filePresenter.prepareDownloadFailView("No file with given id");
+        return filePresenter.prepareSuccessView(tmpFile);
+    }
     public List<FileInfoEntity> getAllFiles(){
         List<FileInfoEntity> tmp = fileUploadDownloadService.getAllFiles();
         return tmp;

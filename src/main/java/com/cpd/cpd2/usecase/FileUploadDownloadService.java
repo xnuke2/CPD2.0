@@ -8,7 +8,7 @@ public interface FileUploadDownloadService {
 
     void upload(FileDsRequestModel fileDsRequestModel);
 
-//    FileDownloadResponseModel download(String id);
+    FileDownloadResponseModel download(String id);
 
     List<FileInfoEntity> getAllFiles();
 
