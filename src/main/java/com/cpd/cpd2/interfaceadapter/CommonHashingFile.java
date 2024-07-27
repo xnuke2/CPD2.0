@@ -6,7 +6,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.time.LocalDateTime;
 
 public class CommonHashingFile implements FileHashing {
-    public String GenerateKey(String name){
+    public String generateKey(String name){
         return DigestUtils.md5Hex(name+ LocalDateTime.now());
     }
 }

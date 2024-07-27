@@ -1,7 +1,11 @@
 package com.cpd.cpd2.usecase;
 
 public interface FilePresenter {
-    FileResponseModel prepareSuccessView(FileResponseModel user);
+    FileUploadResponseModel prepareSuccessView(FileUploadResponseModel user);
 
-    FileResponseModel prepareFailView(String error);
+    FileUploadResponseModel prepareFailView(String error);
+
+//    FileDownloadResponseModel prepareSuccessView(FileDownloadResponseModel answer);
+//
+//    FileDownloadResponseModel prepareDownloadFailView(String error);
 }
