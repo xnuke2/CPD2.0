@@ -14,4 +14,10 @@ public interface FileUploadDownloadService {
 
     boolean delete(String id);
 
+    void createOneTimeLink(String linkId,String fileId);
+
+    String findFileID(String linkId);
+
+
+
 }

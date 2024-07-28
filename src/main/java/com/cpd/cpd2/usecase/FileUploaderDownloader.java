@@ -40,10 +40,24 @@ public class FileUploaderDownloader implements FileInputBoundary{
             return filePresenter.prepareDownloadFailView("No file with given id");
         return filePresenter.prepareSuccessView(tmpFile);
     }
+
+    public FileDownloadResponseModel downloadOneTime(String linkId){
+        String id = fileUploadDownloadService.findFileID(linkId);
+        if(id ==null){
+            return filePresenter.prepareDownloadFailView("No file with given id");
+        }
+        return download(id);
+    }
+
     public List<FileInfoEntity> getAllFiles(){
         return fileUploadDownloadService.getAllFiles();
     }
 
+    public String generateOneTimeIdForDownload(String id){
+        String newKey = fileHashing.generateKey(id+LocalDateTime.now());
+        fileUploadDownloadService.createOneTimeLink(newKey,id);
+        return newKey;
+    }
     public boolean delete(String id){
         return fileUploadDownloadService.delete(id);
     }

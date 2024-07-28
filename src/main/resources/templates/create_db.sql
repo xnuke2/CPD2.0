@@ -7,3 +7,9 @@ CREATE TABLE IF NOT EXISTS files
     date_of_upload VARCHAR(200)  NOT NULL,
     storage_time VARCHAR(200)
 );
+
+CREATE TABLE IF NOT EXISTS links
+(
+    id    VARCHAR(200) PRIMARY KEY ,
+    file_id  VARCHAR(200) NOT NULL
+);
