@@ -60,6 +60,18 @@ public class JpaFile implements FileUploadDownloadService {
         return repository.findAll();
     }
 
+    @Override
+    public boolean delete(String id){
+        try {
+            repository.deleteById(id);
+            minioComponent.deleteObject(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Boolean uploadFileToMinIO(String key, byte[] file) {
         try {
             InputStream in = new ByteArrayInputStream(file);

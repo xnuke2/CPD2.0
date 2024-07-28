@@ -14,22 +14,22 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-public class UploadDownloadController {
+public class FilesController {
 
     final FileInputBoundary fileInputBoundary;
 
     @Autowired
-    public UploadDownloadController(JpaFile jpaFile){
+    public FilesController(JpaFile jpaFile){
         FilePresenter filePresenter = new FileResponseFormatter();
         CommonHashingFile commonHashingFile = new CommonHashingFile();
         this.fileInputBoundary =  new FileUploaderDownloader(filePresenter,jpaFile, commonHashingFile);
 
     }
     @PostMapping("/fileUploader")
-    FileUploadResponseModel create(@ModelAttribute MultipartFile file) throws IOException {
+    ResponseEntity<FileUploadResponseModel> create(@ModelAttribute MultipartFile file) throws IOException {
         FileUploadRequestModel requestModel = new FileUploadRequestModel(file.getOriginalFilename(),file.getSize(),file.getContentType(),
                 file.getBytes());
-        return fileInputBoundary.upload(requestModel);
+        return new ResponseEntity<>(fileInputBoundary.upload(requestModel),HttpStatus.CREATED);
     }
     @GetMapping("/files")
     public ResponseEntity<List<FileInfoEntity>> getListFiles(){
@@ -42,16 +42,25 @@ public class UploadDownloadController {
                               .toUriString());
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(files);
+        return files != null &&  !files.isEmpty()
+                ? new ResponseEntity<>(files, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    @DeleteMapping("/files/{id}")
+    public ResponseEntity<?> getListFiles(@PathVariable String id){
+        boolean deleted =fileInputBoundary.delete(id);
+        return deleted
+                ? new ResponseEntity<>(HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     }
 
     @GetMapping("/files/{id}")
     public ResponseEntity<byte[]> download(@PathVariable String id){
         FileDownloadResponseModel file =fileInputBoundary.download(id);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
-                        + Transliter.transliterate(file.getName()) + "\"")
-                .body(file.getFile());
+        return file!=null
+                ? new ResponseEntity<>(file.getFile(), HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
 

@@ -12,4 +12,6 @@ public interface FileUploadDownloadService {
 
     List<FileInfoEntity> getAllFiles();
 
+    boolean delete(String id);
+
 }

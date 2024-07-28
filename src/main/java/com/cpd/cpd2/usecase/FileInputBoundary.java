@@ -9,4 +9,6 @@ public interface FileInputBoundary {
 
     List<FileInfoEntity> getAllFiles();
 
+    boolean delete(String id);
+
 }
