@@ -10,17 +10,21 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @Getter
 @Setter
+@EnableScheduling
 public class JpaFile implements FileUploadDownloadService {
     @Autowired
     private MinioComponent minioComponent;
@@ -37,7 +41,8 @@ public class JpaFile implements FileUploadDownloadService {
     public void upload(@NotNull FileDsRequestModel fileDsRequestModel) {
 
         FileInfoEntity fileInfo  = new FileInfoEntity(fileDsRequestModel.getKey(), fileDsRequestModel.getName(),
-                fileDsRequestModel.getSize(), fileDsRequestModel.getContentType(),fileDsRequestModel.getDateOfUpload());
+                fileDsRequestModel.getSize(), fileDsRequestModel.getContentType(),fileDsRequestModel.getDateOfUpload(),
+                fileDsRequestModel.getDateOfRemove());
         try {
             if(!(uploadFileToMinIO(fileDsRequestModel.getKey(), fileDsRequestModel.getFile()))){
                 return;
@@ -82,6 +87,17 @@ public class JpaFile implements FileUploadDownloadService {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Scheduled(fixedRate = 300000)
+    void updateFiles(){
+        List<FileInfoEntity> allFiles =repository.findAll();
+        for (FileInfoEntity fileInfo: allFiles) {
+            if(fileInfo.getDateToRemove()!=null)
+                if(fileInfo.getDateToRemove().isBefore(LocalDateTime.now())){
+                    delete(fileInfo.getKey());
+                }
+        }
     }
 
 
