@@ -1,6 +1,7 @@
 package com.cpd.cpd2.interfaceadapter;
 
 import com.cpd.cpd2.interfaceadapter.repository.JpaFileRepository;
+import com.cpd.cpd2.interfaceadapter.repository.JpaLinkRepository;
 import com.cpd.cpd2.interfaceadapter.repository.MinioComponent;
 import com.cpd.cpd2.usecase.FileDownloadResponseModel;
 import com.cpd.cpd2.usecase.FileDsRequestModel;
@@ -19,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Component
@@ -30,11 +32,14 @@ public class JpaFile implements FileUploadDownloadService {
     private MinioComponent minioComponent;
 
     @Autowired
-    private JpaFileRepository repository;
+    private JpaFileRepository fileRepository;
+
+    @Autowired
+    private JpaLinkRepository linkRepository;
 
     @Override
     public  boolean existById(String Key){
-        return repository.existsById(Key);
+        return fileRepository.existsById(Key);
     }
 
     @Override
@@ -51,30 +56,48 @@ public class JpaFile implements FileUploadDownloadService {
             e.printStackTrace();
             return;
         }
-        this.repository.save(fileInfo);
+        this.fileRepository.save(fileInfo);
     }
     @Override
     public FileDownloadResponseModel download(String id){
-        Optional<FileInfoEntity> optional = this.repository.findById(id);
+        Optional<FileInfoEntity> optional = this.fileRepository.findById(id);
         FileInfoEntity fileInfo=optional.get();
         byte[] file = minioComponent.getObject(id);
         return new FileDownloadResponseModel(fileInfo.getName(),file);
     }
     @Override
     public List<FileInfoEntity> getAllFiles(){
-        return repository.findAll();
+        return fileRepository.findAll();
     }
 
     @Override
     public boolean delete(String id){
         try {
-            repository.deleteById(id);
+            fileRepository.deleteById(id);
             minioComponent.deleteObject(id);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public void createOneTimeLink(String linkId, String fileId){
+        linkRepository.save(new LinkEntity(linkId,fileId));
+    }
+
+    @Override
+    public String findFileID(String linkId){
+        Optional<LinkEntity> optional = linkRepository.findById(linkId);
+        try {
+            LinkEntity linkEntity = optional.get();
+            linkRepository.deleteById(linkId);
+            return linkEntity.getFileID();
+        }catch (NoSuchElementException e){
+            return null;
+        }
+
     }
 
     private Boolean uploadFileToMinIO(String key, byte[] file) {
@@ -91,7 +114,7 @@ public class JpaFile implements FileUploadDownloadService {
 
     @Scheduled(fixedRate = 300000)
     void updateFiles(){
-        List<FileInfoEntity> allFiles =repository.findAll();
+        List<FileInfoEntity> allFiles =fileRepository.findAll();
         for (FileInfoEntity fileInfo: allFiles) {
             if(fileInfo.getDateToRemove()!=null)
                 if(fileInfo.getDateToRemove().isBefore(LocalDateTime.now())){
@@ -99,6 +122,7 @@ public class JpaFile implements FileUploadDownloadService {
                 }
         }
     }
+
 
 
 

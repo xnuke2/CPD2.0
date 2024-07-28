@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
@@ -24,7 +25,6 @@ public class FilesController {
         FilePresenter filePresenter = new FileResponseFormatter();
         CommonHashingFile commonHashingFile = new CommonHashingFile();
         this.fileInputBoundary =  new FileUploaderDownloader(filePresenter,jpaFile, commonHashingFile);
-
     }
     @PostMapping("/files/upload")
     public ResponseEntity<FileUploadResponseModel> uploadFile(@ModelAttribute MultipartFile file,
@@ -69,7 +69,6 @@ public class FilesController {
                               .path(tmp.getKey())
                               .toUriString());
         }
-
         return files != null &&  !files.isEmpty()
                 ? new ResponseEntity<>(files, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -82,14 +81,43 @@ public class FilesController {
                 : new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     }
 
+
     @GetMapping("/files/{id}")
     public ResponseEntity<byte[]> download(@PathVariable String id){
-        FileDownloadResponseModel file =fileInputBoundary.download(id);
-        return file!=null
-                ? new ResponseEntity<>(file.getFile(), HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
+        try {
+            FileDownloadResponseModel file =fileInputBoundary.download(id);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+                            + Transliter.transliterate(file.getName()) + "\"")
+                    .body(file.getFile());
+        }catch (ResponseStatusException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
+    @GetMapping("/files/tmp/{linkId}")
+    public ResponseEntity<byte[]> downloadOnce(@PathVariable String linkId){
+        try {
+            FileDownloadResponseModel file =fileInputBoundary.downloadOneTime(linkId);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+                            + Transliter.transliterate(file.getName()) + "\"")
+                    .body(file.getFile());
+
+        }catch (ResponseStatusException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @PostMapping("/files/{id}")
+    public ResponseEntity<String> createOnceDownloadLink(@PathVariable String id){
+        return new ResponseEntity<>(
+                ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/files/tmp/")
+                .path(fileInputBoundary.generateOneTimeIdForDownload(id))
+                .toUriString(),
+                HttpStatus.CREATED);
+    }
+
 
 
 

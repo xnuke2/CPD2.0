@@ -7,8 +7,12 @@ public interface FileInputBoundary {
 
     FileDownloadResponseModel download(String id);
 
+    FileDownloadResponseModel downloadOneTime(String id);
+
     List<FileInfoEntity> getAllFiles();
 
     boolean delete(String id);
+
+    String generateOneTimeIdForDownload(String id);
 
 }

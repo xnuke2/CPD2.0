@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Files")
+@Table(name = "files")
 public class FileInfoEntity {
     @Id
     @Column(name = "key")
