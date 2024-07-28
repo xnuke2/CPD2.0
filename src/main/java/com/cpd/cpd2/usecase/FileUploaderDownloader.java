@@ -44,4 +44,8 @@ public class FileUploaderDownloader implements FileInputBoundary{
         return fileUploadDownloadService.getAllFiles();
     }
 
+    public boolean delete(String id){
+        return fileUploadDownloadService.delete(id);
+    }
+
 }

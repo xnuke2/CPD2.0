@@ -35,6 +35,7 @@ public class JpaFile implements FileUploadDownloadService {
 
     @Override
     public void upload(@NotNull FileDsRequestModel fileDsRequestModel) {
+
         FileInfoEntity fileInfo  = new FileInfoEntity(fileDsRequestModel.getKey(), fileDsRequestModel.getName(),
                 fileDsRequestModel.getSize(), fileDsRequestModel.getContentType(),fileDsRequestModel.getDateOfUpload());
         try {
@@ -57,6 +58,18 @@ public class JpaFile implements FileUploadDownloadService {
     @Override
     public List<FileInfoEntity> getAllFiles(){
         return repository.findAll();
+    }
+
+    @Override
+    public boolean delete(String id){
+        try {
+            repository.deleteById(id);
+            minioComponent.deleteObject(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private Boolean uploadFileToMinIO(String key, byte[] file) {

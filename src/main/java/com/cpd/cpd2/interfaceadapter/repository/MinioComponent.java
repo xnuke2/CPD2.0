@@ -1,10 +1,9 @@
 package com.cpd.cpd2.interfaceadapter.repository;
 
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import io.minio.errors.*;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,8 +21,37 @@ public class MinioComponent {
 
     @Value("${minio.bucket-name}")
     private String bucketName;
-
+    public boolean bucketExists(String bucketName) {
+        boolean flag = false;
+        try {
+            flag = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            if (flag) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
+    }
+    public void createBucketName(String bucketName) {
+        try {
+            if (StringUtils.isBlank(bucketName)) {
+                return;
+            }
+            boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            if (isExist) {
+//                log.info("Bucket {} already exists.", bucketName);
+            } else {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+//            log.error(e.getMessage());
+        }
+    }
     public void putObject(String objectName, InputStream inputStream) {
+        if (!bucketExists(bucketName))createBucketName(bucketName);
         try {
             minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(objectName)
                     .stream(inputStream, -1, 10485760).build());
@@ -42,6 +70,7 @@ public class MinioComponent {
     }
 
     public byte[] getObject(String objectName) {
+        if (!bucketExists(bucketName))createBucketName(bucketName);
         try (InputStream stream = minioClient
                 .getObject(GetObjectArgs.builder()
                         .bucket(bucketName)
@@ -55,5 +84,20 @@ public class MinioComponent {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void deleteObject(String objectName){
+        if (!bucketExists(bucketName))createBucketName(bucketName);
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .build());
+        } catch (ErrorResponseException | InsufficientDataException |
+                 InternalException | InvalidKeyException | InvalidResponseException |
+                 IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException | IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 }

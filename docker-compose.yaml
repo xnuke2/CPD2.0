@@ -1,6 +1,17 @@
 version: '3.9'
 
 services:
+  cpd2-0:
+    container_name: cpd2-0
+    depends_on:
+      - minio
+      - postgresql_db
+    ports:
+      - "8081:8081"
+    build:
+      context: .
+    restart: unless-stopped
+
   minio:
     image: minio/minio:latest
     command: server --console-address ":9001" /data/
