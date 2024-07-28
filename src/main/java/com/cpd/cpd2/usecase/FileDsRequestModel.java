@@ -23,4 +23,6 @@ public class FileDsRequestModel {
     private LocalDateTime dateOfUpload;
 
     private String key;
+
+    private LocalDateTime dateOfRemove;
 }

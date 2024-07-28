@@ -28,7 +28,7 @@ public class FileUploaderDownloader implements FileInputBoundary{
         LocalDateTime now = LocalDateTime.now();
 
         FileDsRequestModel fileDsRequestModel = new FileDsRequestModel(request.getName(), request.getSize(),
-                request.getContentType(), request.getFile(),now,key);
+                request.getContentType(), request.getFile(),now,key,request.getDateOfRemove());
 
         fileUploadDownloadService.upload(fileDsRequestModel);
         FileUploadResponseModel tmp =  new FileUploadResponseModel(request.getName(),now);

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,11 +26,38 @@ public class FilesController {
         this.fileInputBoundary =  new FileUploaderDownloader(filePresenter,jpaFile, commonHashingFile);
 
     }
-    @PostMapping("/fileUploader")
-    ResponseEntity<FileUploadResponseModel> create(@ModelAttribute MultipartFile file) throws IOException {
-        FileUploadRequestModel requestModel = new FileUploadRequestModel(file.getOriginalFilename(),file.getSize(),file.getContentType(),
-                file.getBytes());
-        return new ResponseEntity<>(fileInputBoundary.upload(requestModel),HttpStatus.CREATED);
+    @PostMapping("/files/upload")
+    public ResponseEntity<FileUploadResponseModel> uploadFile(@ModelAttribute MultipartFile file,
+                                                      @RequestParam(value="days",required = false) String rowDays,
+                                                      @RequestParam(value="hours",required = false) String rowHours,
+                                                      @RequestParam(value="minutes",required = false) String rowMinutes
+    ) throws IOException {
+        try {
+            FileUploadRequestModel requestModel;
+            if(rowDays==null&&rowHours==null&&rowMinutes==null){
+                requestModel = new FileUploadRequestModel(
+                        file.getOriginalFilename(),
+                        file.getSize(),
+                        file.getContentType(),
+                        file.getBytes());
+            }else {
+                short days;
+                short hours;
+                short minutes;
+                if(rowDays==null)days=0;else days = Short.parseShort(rowDays);
+                if(rowHours==null)hours=0;else hours = Short.parseShort(rowHours);
+                if(rowMinutes==null)minutes=0;else minutes = Short.parseShort(rowMinutes);
+                requestModel = new FileUploadRequestModel(
+                        file.getOriginalFilename(),
+                        file.getSize(),
+                        file.getContentType(),
+                        file.getBytes(),
+                        LocalDateTime.now().plusDays(days).plusHours(hours).plusMinutes(minutes));
+            }
+            return new ResponseEntity<>(fileInputBoundary.upload(requestModel),HttpStatus.CREATED);
+        }catch (NumberFormatException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
     @GetMapping("/files")
     public ResponseEntity<List<FileInfoEntity>> getListFiles(){

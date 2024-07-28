@@ -34,4 +34,7 @@ public class FileInfoEntity {
 
     @Column(name = "date_of_upload")
     private LocalDateTime dateOfUpload;
+
+    @Column(name = "storage_time")
+    private LocalDateTime dateToRemove;
 }
